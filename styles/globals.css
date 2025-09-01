@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -16,6 +17,7 @@ code {
     monospace;
 }
 
+/* Dark mode styles */
 .dark {
   color-scheme: dark;
 }
