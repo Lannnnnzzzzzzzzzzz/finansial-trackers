@@ -11,8 +11,10 @@ export default async function handler(req, res) {
   const { command } = req.body;
 
   try {
-    // Process command with Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    console.log('Processing command:', command);
+    
+    // Gunakan model name yang benar
+    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
     
     const prompt = `
       Anda adalah asisten keuangan. Analisis perintah pengguna dan ekstrak informasi transaksi.
@@ -40,6 +42,8 @@ export default async function handler(req, res) {
     const geminiResult = await model.generateContent(prompt);
     const response = await geminiResult.response;
     const text = response.text();
+    
+    console.log('Gemini response:', text);
 
     // Parse JSON from Gemini response
     let transactionData;
@@ -61,6 +65,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Data transaksi tidak lengkap. Pastikan perintah Anda jelas.' });
     }
 
+    console.log('Transaction data:', transactionData);
+
     // Connect to MongoDB and save transaction
     await client.connect();
     const database = client.db('financialTracker');
@@ -73,6 +79,8 @@ export default async function handler(req, res) {
       date: new Date(),
       note: transactionData.note || ''
     });
+
+    console.log('MongoDB result:', mongoResult);
 
     res.status(201).json({ 
       success: true, 
