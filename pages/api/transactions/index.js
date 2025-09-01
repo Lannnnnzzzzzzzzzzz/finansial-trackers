@@ -10,9 +10,11 @@ export default async function handler(req, res) {
     const transactions = database.collection('transactions');
 
     if (req.method === 'GET') {
+      // Get all transactions
       const result = await transactions.find({}).toArray();
       res.status(200).json(result);
     } else if (req.method === 'POST') {
+      // Create new transaction
       const { type, amount, category, date, note } = req.body;
       const result = await transactions.insertOne({
         type,
