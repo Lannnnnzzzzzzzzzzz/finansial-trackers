@@ -12,6 +12,7 @@ const Sidebar = ({ onClose }) => {
 
   const handleNavigation = (path) => {
     router.push(path);
+    // Close sidebar on mobile after navigation
     if (onClose) onClose();
   };
 
@@ -41,6 +42,7 @@ const Sidebar = ({ onClose }) => {
         </ul>
       </nav>
       
+      {/* Mobile close button */}
       {onClose && (
         <div className="md:hidden mt-auto pt-4 border-t border-gray-700">
           <button
