@@ -37,8 +37,8 @@ export default async function handler(req, res) {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const geminiResult = await model.generateContent(prompt);
+    const response = await geminiResult.response;
     const text = response.text();
 
     // Parse JSON from Gemini response
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     const database = client.db('financialTracker');
     const transactions = database.collection('transactions');
 
-    const result = await transactions.insertOne({
+    const mongoResult = await transactions.insertOne({
       type: transactionData.type,
       amount: parseFloat(transactionData.amount),
       category: transactionData.category,
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     res.status(201).json({ 
       success: true, 
       transaction: {
-        _id: result.insertedId,
+        _id: mongoResult.insertedId,
         ...transactionData
       }
     });
