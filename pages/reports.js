@@ -33,6 +33,7 @@ const Reports = () => {
     }
   };
 
+  // Filter transactions for selected month
   const filteredTransactions = transactions.filter(transaction => {
     if (reportType === 'monthly') {
       const transactionDate = new Date(transaction.date);
@@ -45,6 +46,7 @@ const Reports = () => {
     return true;
   });
 
+  // Calculate summary data
   const income = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -55,6 +57,7 @@ const Reports = () => {
   
   const balance = income - expense;
 
+  // Prepare category data for pie chart
   const categoryMap = {};
   filteredTransactions
     .filter(t => t.type === 'expense')
@@ -71,6 +74,7 @@ const Reports = () => {
     value: categoryMap[category]
   }));
 
+  // Prepare monthly trend data
   const monthlyMap = {};
   transactions.forEach(t => {
     const month = format(new Date(t.date), 'yyyy-MM');
@@ -95,6 +99,7 @@ const Reports = () => {
     };
   }).sort((a, b) => new Date(a.month) - new Date(b.month));
 
+  // Prepare daily data for selected month
   const dailyMap = {};
   filteredTransactions.forEach(t => {
     const day = format(new Date(t.date), 'yyyy-MM-dd');
