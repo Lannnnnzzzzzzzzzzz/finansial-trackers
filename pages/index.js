@@ -19,6 +19,7 @@ const Dashboard = () => {
       const data = response.data;
       setTransactions(data);
       
+      // Calculate summary
       const income = data
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -33,6 +34,7 @@ const Dashboard = () => {
         balance: income - expense
       });
       
+      // Prepare category data for pie chart
       const categoryMap = {};
       data
         .filter(t => t.type === 'expense')
@@ -51,6 +53,7 @@ const Dashboard = () => {
       
       setCategoryData(categoryDataArray);
       
+      // Prepare monthly trend data
       const monthlyMap = {};
       data.forEach(t => {
         const month = format(new Date(t.date), 'MMM yyyy');
