@@ -6,7 +6,8 @@ export default async function handler(req, res) {
   try {
     console.log('Testing Gemini API...');
     
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Gunakan model name yang benar
+    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
     const result = await model.generateContent("Halo, apa kabar?");
     const response = await result.response;
     const text = response.text();
