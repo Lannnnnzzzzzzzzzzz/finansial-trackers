@@ -57,12 +57,15 @@ const Transactions = () => {
     
     try {
       if (editingTransaction) {
+        // Update existing transaction
         await axios.put(`/api/transactions/${editingTransaction._id}`, formData);
         setEditingTransaction(null);
       } else {
+        // Add new transaction
         await axios.post('/api/transactions', formData);
       }
       
+      // Reset form and refresh transactions
       setFormData({
         type: 'expense',
         amount: '',
