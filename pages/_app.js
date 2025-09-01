@@ -9,11 +9,14 @@ function MyApp({ Component, pageProps }) {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - Hidden on mobile by default */}
         <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 transform transition duration-300 ease-in-out md:translate-x-0 md:static md:inset-0`}>
           <Sidebar onClose={() => setSidebarOpen(false)} />
         </div>
         
+        {/* Main Content */}
         <div className="flex-1 overflow-y-auto">
+          {/* Mobile Header */}
           <div className="md:hidden bg-gray-800 p-4 flex items-center justify-between">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -24,15 +27,17 @@ function MyApp({ Component, pageProps }) {
               </svg>
             </button>
             <h1 className="text-xl font-bold">Catatan Keuangan</h1>
-            <div></div>
+            <div></div> {/* Spacer for alignment */}
           </div>
           
+          {/* Page Content */}
           <div className="p-4 md:p-6">
             <Component {...pageProps} />
           </div>
         </div>
       </div>
       
+      {/* Footer */}
       <Footer />
     </div>
   );
