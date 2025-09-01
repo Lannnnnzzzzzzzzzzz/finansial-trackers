@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     const transactions = database.collection('transactions');
 
     if (req.method === 'PUT') {
+      // Update transaction
       const { type, amount, category, date, note } = req.body;
       const result = await transactions.updateOne(
         { _id: new ObjectId(id) },
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
       );
       res.status(200).json(result);
     } else if (req.method === 'DELETE') {
+      // Delete transaction
       const result = await transactions.deleteOne({ _id: new ObjectId(id) });
       res.status(200).json(result);
     } else {
