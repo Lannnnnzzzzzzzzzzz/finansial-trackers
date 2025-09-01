@@ -1,11 +1,14 @@
 import { MongoClient } from 'mongodb';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { OpenAI } from 'openai';
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
-// Initialize Google Generative AI with your API key
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+// Initialize OpenAI with OpenRouter
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_API_BASE || 'https://openrouter.ai/api/v1',
+});
 
 export default async function handler(req, res) {
   const { message } = req.body;
@@ -26,7 +29,7 @@ export default async function handler(req, res) {
       note: t.note
     }));
 
-    // Create prompt for Gemini
+    // Create prompt for OpenAI
     const prompt = `
       You are a financial assistant AI. Answer the user's question based on their transaction data.
       Here is the user's transaction data in JSON format:
@@ -37,15 +40,18 @@ export default async function handler(req, res) {
       Provide a helpful, concise response in Indonesian language.
     `;
 
-    // Get response from Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    // Get response from OpenAI via OpenRouter
+    const completion = await openai.chat.completions.create({
+      model: "openai/gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 500,
+    });
 
-    res.status(200).json({ response: text });
+    const aiResponse = completion.choices[0].message.content;
+
+    res.status(200).json({ response: aiResponse });
   } catch (error) {
-    console.error('Error with Gemini API:', error);
+    console.error('Error with OpenAI API:', error);
     res.status(500).json({ error: error.message });
   } finally {
     await client.close();
