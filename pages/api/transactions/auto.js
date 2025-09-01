@@ -1,11 +1,14 @@
 import { MongoClient } from 'mongodb';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { OpenAI } from 'openai';
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
-// Initialize Google Generative AI with your API key
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+// Initialize OpenAI with OpenRouter
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_API_BASE || 'https://openrouter.ai/api/v1',
+});
 
 export default async function handler(req, res) {
   const { command } = req.body;
@@ -13,9 +16,7 @@ export default async function handler(req, res) {
   try {
     console.log('Processing command:', command);
     
-    // Gunakan model name yang benar
-    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
-    
+    // Process command with OpenAI via OpenRouter
     const prompt = `
       Anda adalah asisten keuangan. Analisis perintah pengguna dan ekstrak informasi transaksi.
       
@@ -39,13 +40,16 @@ export default async function handler(req, res) {
       }
     `;
 
-    const geminiResult = await model.generateContent(prompt);
-    const response = await geminiResult.response;
-    const text = response.text();
-    
-    console.log('Gemini response:', text);
+    const completion = await openai.chat.completions.create({
+      model: "openai/gpt-3.5-turbo", // atau model lain yang tersedia di OpenRouter
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 500,
+    });
 
-    // Parse JSON from Gemini response
+    const text = completion.choices[0].message.content;
+    console.log('OpenAI response:', text);
+
+    // Parse JSON from OpenAI response
     let transactionData;
     try {
       // Extract JSON from the response (in case there's extra text)
@@ -56,7 +60,7 @@ export default async function handler(req, res) {
         throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
-      console.error('Error parsing Gemini response:', parseError);
+      console.error('Error parsing OpenAI response:', parseError);
       return res.status(400).json({ error: 'Gagal memproses perintah. Silakan coba lagi dengan perintah yang lebih jelas.' });
     }
 
