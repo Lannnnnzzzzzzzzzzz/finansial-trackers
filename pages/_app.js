@@ -1,7 +1,8 @@
 import '../styles/globals.css';
 import { useState } from 'react';
-import Sidebar from '/components/Sidebar.jsx'; // Gunakan absolute path
-import Footer from '/components/Footer.jsx'; // Gunakan absolute path
+import Sidebar from '@/components/Sidebar'
+import Footer from '@/components/Footer'
+
 
 function MyApp({ Component, pageProps }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
