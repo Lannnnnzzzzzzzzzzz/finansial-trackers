@@ -1,7 +1,8 @@
 import '../styles/globals.css';
 import { useState } from 'react';
-import Sidebar from '../components/Sidebar'
-import Footer from '../components/Footer'
+import Sidebar from '../components/Sidebar.jsx'
+import Footer from '../components/Footer.jsx'
+
 
 
 
