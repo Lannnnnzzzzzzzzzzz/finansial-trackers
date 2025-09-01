@@ -1,0 +1,90 @@
+import { MongoClient } from 'mongodb';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
+
+// Initialize Google Generative AI with your API key
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+
+export default async function handler(req, res) {
+  const { command } = req.body;
+
+  try {
+    // Process command with Gemini
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const prompt = `
+      Anda adalah asisten keuangan. Analisis perintah pengguna dan ekstrak informasi transaksi.
+      
+      Perintah pengguna: "${command}"
+      
+      Ekstrak informasi berikut:
+      1. type: "income" jika ini pemasukan, "expense" jika pengeluaran
+      2. amount: jumlah uang dalam angka (tanpa titik atau koma)
+      3. category: kategori transaksi (pilih dari: Makanan & Minuman, Transportasi, Belanja, Hiburan, Kesehatan, Pendidikan, Tagihan, Lainnya)
+      4. note: catatan singkat tentang transaksi
+      
+      Jika tidak ada kategori yang jelas, gunakan "Lainnya".
+      Jika tidak ada catatan yang jelas, buat catatan singkat yang sesuai.
+      
+      Respon harus dalam format JSON saja seperti ini:
+      {
+        "type": "income/expense",
+        "amount": 30000,
+        "category": "Kategori",
+        "note": "Catatan"
+      }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // Parse JSON from Gemini response
+    let transactionData;
+    try {
+      // Extract JSON from the response (in case there's extra text)
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        transactionData = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('No valid JSON found in response');
+      }
+    } catch (parseError) {
+      console.error('Error parsing Gemini response:', parseError);
+      return res.status(400).json({ error: 'Gagal memproses perintah. Silakan coba lagi dengan perintah yang lebih jelas.' });
+    }
+
+    // Validate transaction data
+    if (!transactionData.type || !transactionData.amount || !transactionData.category) {
+      return res.status(400).json({ error: 'Data transaksi tidak lengkap. Pastikan perintah Anda jelas.' });
+    }
+
+    // Connect to MongoDB and save transaction
+    await client.connect();
+    const database = client.db('financialTracker');
+    const transactions = database.collection('transactions');
+
+    const result = await transactions.insertOne({
+      type: transactionData.type,
+      amount: parseFloat(transactionData.amount),
+      category: transactionData.category,
+      date: new Date(),
+      note: transactionData.note || ''
+    });
+
+    res.status(201).json({ 
+      success: true, 
+      transaction: {
+        _id: result.insertedId,
+        ...transactionData
+      }
+    });
+  } catch (error) {
+    console.error('Error with auto transaction:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    await client.close();
+  }
+}
