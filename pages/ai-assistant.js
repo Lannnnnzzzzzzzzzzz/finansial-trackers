@@ -26,6 +26,7 @@ const AIAssistant = () => {
     
     if (!inputText.trim()) return;
     
+    // Add user message
     const userMessage = {
       id: messages.length + 1,
       text: inputText,
@@ -37,10 +38,12 @@ const AIAssistant = () => {
     setIsLoading(true);
     
     try {
+      // Send message to AI API
       const response = await axios.post('/api/ai', {
         message: inputText
       });
       
+      // Add AI response
       const aiMessage = {
         id: messages.length + 2,
         text: response.data.response,
@@ -51,6 +54,7 @@ const AIAssistant = () => {
     } catch (error) {
       console.error('Error getting AI response:', error);
       
+      // Add error message
       const errorMessage = {
         id: messages.length + 2,
         text: "Maaf, terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi nanti.",
